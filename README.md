@@ -2,26 +2,26 @@
 
 ## 零
 
-偶然中在[百度图片](http://image.baidu.com/search/index?tn=baiduimage&ps=1&ct=201326592&lm=-1&cl=2&nc=1&ie=utf-8&word=deepin)中看到一个有意思的动画效果，如下图所示
+偶然中在[百度图片](http://image.baidu.com/search/index?tn=baiduimage&ps=1&ct=201326592&lm=-1&cl=2&nc=1&ie=utf-8&word=deepin)看到一个有意思的动画效果，如下图所示
 ![](images/深度录屏_选择区域_20190602174408.gif)
 
 正好闲来无事，就想着实现个类似的动画，也好学习下 [Angular 的动画系统](https://angular.cn/guide/animations)。
 
 ## 一
 
-首先要分析下这个动画的一些特点。
+首先是分析这个动画的一些特点。
 
 1. 鼠标悬停显示工具栏
 1. 鼠标移出隐藏工具栏
 1. 动画方向跟随鼠标方向
 
-`1` 和 `2` 很容易通过 css 的 hover 伪类 实现，`3`却没办法使用 css 实现，因为 css 无法获取鼠标坐标。看来只能使用 Javascript [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)来实现了。
+`1` 和 `2` 很容易通过 css 的 hover 伪类 实现，`3`却没办法使用 css 实现，因为 css 无法获取鼠标坐标。看来只能使用 Javascript 来实现了。
 
 ## 二
 
 动手的第一步当然是创建个 Demo 项目，加点 css 把架子搭好。
 ![](images/深度截图_选择区域_20190602175914.png)
-然后创建个 Angular 指令，给每个框框都附加上鼠标时间监听。
+然后添加 Angular 指令，给每个框框都附加上鼠标事件监听。
 `hover.directive.ts`
 
 ```javascript
@@ -33,7 +33,7 @@
 }
 ```
 
-这里使用的[HostListener](https://angular.cn/api/core/HostListener)，在 Angular 中用于监听宿主元素事件，`["$event"]`则是将事件对象传递到函数内。
+这里使用的[HostListener](https://angular.cn/api/core/HostListener)在 Angular 中用于监听宿主元素事件，`["$event"]`则是将事件对象传递到函数内。
 关于判断鼠标的方向，我这里用了一个比较简单的方法，通过找到距离鼠标最近的边来判定。
 
 ```javascript
@@ -62,7 +62,9 @@ const direction = this.getDirection([
 
 ## 三
 
-前期准备工作都完成了，就要开始写动画了。这里我用的是 Angular 的`BrowserAnimationsModule`模块来实现动画的，所以要先在 AppModule 中导入`BrowserAnimationsModule`。
+前期准备工作都完成后，就要开始写动画了。
+
+这里我用的是 Angular 的`BrowserAnimationsModule`模块来实现动画，所以要先在`AppModule`中导入`BrowserAnimationsModule`。
 
 ```javascript
 
@@ -81,7 +83,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 1. [animations](https://angular.cn/guide/animations) 基于`CSS Animations`，使用时附加于组件的元数据中，通过切换预定义的状态来实现动画过度
 1. [AnimationBuilder](https://angular.cn/api/animations/AnimationBuilder)。基于`Web Animations API`，使用时依赖`AnimationBuilder服务`，通过脚本代码动态创建动画并执行。
 
-刚开始我是使用`animations`实现了动画效果，却发现因为要跟随鼠标方向执行动画，使用`animations`会显得繁琐而效果也不甚满意，所以改用`AnimationBuilder`实现，代价是在老旧的浏览器上需要附带 polyfills 以支持`Web Animations API`，好在 Angular6 之后的版本会自动附带，无需任何配置。
+刚开始我是用`animations`实现了动画效果，却发现因为动画要跟随鼠标方向，使用`animations`会显得繁琐而效果也不甚满意，所以改用`AnimationBuilder`实现，代价是在老旧的浏览器上需要附带 polyfills 以支持`Web Animations API`，好在 Angular6 之后的版本会自动附带，无需任何配置。
 
 先实现鼠标悬停动画
 
@@ -138,7 +140,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 1. 绑定到当前元素
 1. 执行动画
 
-移出的动画就更好设置了，只需要将背景图移回初始位置就可。这个初始位置并不是固定了，而是根据移出方向选择的。
+移出的动画就更好设置了，只需要将背景图移回初始位置即可。这个初始位置并不是固定的，而是根据移出方向变动的。
 
 ```javascript
   @HostListener("mouseout", ["$event"]) mouseout(e: MouseEvent) {
